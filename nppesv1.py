@@ -67,8 +67,15 @@ def nppes (criteria):
             other_names=other_names.append(new_other_names)
             basic=basic.append(new_basic)
             taxonomies=taxonomies.append(new_taxonomies)
-    
-        result= pd.merge(pd.merge(pd.merge(addresses,taxonomies,on='NPI',how='inner') ,identifiers,on='NPI',how='inner'),basic,on='NPI',how='inner') 
+        
+        if len (identifiers)>0 and len(basic)>0:   
+            result= pd.merge(pd.merge(pd.merge(addresses,taxonomies,on='NPI',how='inner') ,identifiers,on='NPI',how='inner'),basic,on='NPI',how='inner') 
+        elif len (identifiers)>0 and len(basic)==0:
+            result= pd.merge(pd.merge(addresses,taxonomies,on='NPI',how='inner') ,identifiers,on='NPI',how='inner')
+        elif len (identifiers)==0 and len(basic)>0:    
+            result= pd.merge(pd.merge(addresses,taxonomies,on='NPI',how='inner') ,basic,on='NPI',how='inner')
+        else:    
+            result= pd.merge(addresses,taxonomies,on='NPI',how='inner') 
         return result
     #created_epoch
     #last_updated_epoch
@@ -79,8 +86,8 @@ NPIs=NPI_file.readlines()
 final=pd.DataFrame()
 for i in NPIs:
     i=i.rstrip()
-    print (i)
     criteria_inputs=[i,'','','','','','','','','','','','']
     result=nppes(criteria_inputs)
     final=final.append(result)
 final.to_csv('/Users/user/Documents/NPI_output.csv',index=False)
+
